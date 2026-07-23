@@ -1,10 +1,12 @@
 package com.dhruv.microloan_platform.service;
 
+import com.dhruv.microloan_platform.dto.loan.AgreementSnapshot;
 import com.dhruv.microloan_platform.dto.loanapplication.LoanApplicationRequest;
 import com.dhruv.microloan_platform.dto.loanapplication.LoanApplicationResponse;
 import com.dhruv.microloan_platform.dto.loanapplication.RejectRequest;
 import com.dhruv.microloan_platform.entity.ApplicationStatus;
 import com.dhruv.microloan_platform.entity.Borrower;
+import com.dhruv.microloan_platform.entity.Loan;
 import com.dhruv.microloan_platform.entity.LoanApplication;
 import com.dhruv.microloan_platform.entity.LoanProduct;
 import com.dhruv.microloan_platform.exception.BusinessRuleException;
@@ -12,16 +14,22 @@ import com.dhruv.microloan_platform.exception.ResourceNotFoundException;
 import com.dhruv.microloan_platform.repository.BorrowerRepository;
 import com.dhruv.microloan_platform.repository.LoanApplicationRepository;
 import com.dhruv.microloan_platform.repository.LoanProductRepository;
+import com.dhruv.microloan_platform.repository.LoanRepository;
 import com.dhruv.microloan_platform.service.eligibility.LoanEligibilityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 
 /**
- * Fetches Borrower/LoanProduct via their own repositories directly (same cross-repository
- * pattern KycService uses) rather than calling BorrowerService/LoanProductService - services
- * talk to repositories, not to each other, in this codebase.
+ * Fetches Borrower/LoanProduct/Loan via their own repositories directly (same
+ * cross-repository pattern KycService uses) rather than calling
+ * BorrowerService/LoanProductService/LoanService - services talk to repositories, not to
+ * each other, in this codebase.
  */
 @Service
 public class LoanApplicationService {
@@ -29,16 +37,22 @@ public class LoanApplicationService {
     private final LoanApplicationRepository loanApplicationRepository;
     private final BorrowerRepository borrowerRepository;
     private final LoanProductRepository loanProductRepository;
+    private final LoanRepository loanRepository;
     private final LoanEligibilityService loanEligibilityService;
+    private final ObjectMapper objectMapper;
 
     public LoanApplicationService(LoanApplicationRepository loanApplicationRepository,
                                    BorrowerRepository borrowerRepository,
                                    LoanProductRepository loanProductRepository,
-                                   LoanEligibilityService loanEligibilityService) {
+                                   LoanRepository loanRepository,
+                                   LoanEligibilityService loanEligibilityService,
+                                   ObjectMapper objectMapper) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.borrowerRepository = borrowerRepository;
         this.loanProductRepository = loanProductRepository;
+        this.loanRepository = loanRepository;
         this.loanEligibilityService = loanEligibilityService;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -72,8 +86,37 @@ public class LoanApplicationService {
     public LoanApplicationResponse approve(Long id) {
         LoanApplication application = findOrThrow(id);
         requirePending(application);
+        LoanProduct product = loanProductRepository.findById(application.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Loan product " + application.getProductId() + " not found"));
+
         application.setStatus(ApplicationStatus.APPROVED);
-        return LoanApplicationResponse.from(loanApplicationRepository.save(application));
+        loanApplicationRepository.save(application);
+        loanRepository.save(buildLoan(application, product));
+
+        return LoanApplicationResponse.from(application);
+    }
+
+    private Loan buildLoan(LoanApplication application, LoanProduct product) {
+        BigDecimal principal = application.getRequestedAmount();
+        int tenureMonths = application.getRequestedTenureMonths();
+        BigDecimal emi = EmiCalculator.calculateEmi(principal, product.getInterestRate(), tenureMonths);
+        BigDecimal totalPayable = emi.multiply(BigDecimal.valueOf(tenureMonths));
+
+        AgreementSnapshot snapshot = new AgreementSnapshot(
+                application.getId(), product.getId(), product.getName(),
+                principal, product.getInterestRate(), product.getPenaltyRate(),
+                tenureMonths, emi, totalPayable, Instant.now());
+
+        return Loan.builder()
+                .borrowerId(application.getBorrowerId())
+                .applicationId(application.getId())
+                .principalAmount(principal)
+                .interestRate(product.getInterestRate())
+                .tenureMonths(tenureMonths)
+                .emiAmount(emi)
+                .totalPayable(totalPayable)
+                .agreementSnapshot(objectMapper.writeValueAsString(snapshot))
+                .build();
     }
 
     @Transactional

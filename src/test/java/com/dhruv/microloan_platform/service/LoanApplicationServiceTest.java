@@ -6,20 +6,25 @@ import com.dhruv.microloan_platform.dto.loanapplication.RejectRequest;
 import com.dhruv.microloan_platform.entity.ApplicationStatus;
 import com.dhruv.microloan_platform.entity.Borrower;
 import com.dhruv.microloan_platform.entity.KycLevel;
+import com.dhruv.microloan_platform.entity.Loan;
 import com.dhruv.microloan_platform.entity.LoanApplication;
 import com.dhruv.microloan_platform.entity.LoanProduct;
+import com.dhruv.microloan_platform.entity.LoanStatus;
 import com.dhruv.microloan_platform.exception.BusinessRuleException;
 import com.dhruv.microloan_platform.exception.ResourceNotFoundException;
 import com.dhruv.microloan_platform.repository.BorrowerRepository;
 import com.dhruv.microloan_platform.repository.LoanApplicationRepository;
 import com.dhruv.microloan_platform.repository.LoanProductRepository;
+import com.dhruv.microloan_platform.repository.LoanRepository;
 import com.dhruv.microloan_platform.service.eligibility.LoanEligibilityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,7 +49,11 @@ class LoanApplicationServiceTest {
     @Mock
     private LoanProductRepository loanProductRepository;
     @Mock
+    private LoanRepository loanRepository;
+    @Mock
     private LoanEligibilityService loanEligibilityService;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private LoanApplicationService loanApplicationService;
@@ -141,14 +150,33 @@ class LoanApplicationServiceTest {
     }
 
     @Test
-    void approveFlipsPendingToApproved() {
+    void approveFlipsPendingToApprovedAndCreatesLoanWithFrozenSnapshot() {
         LoanApplication application = pendingApplication(5L);
         when(loanApplicationRepository.findById(5L)).thenReturn(Optional.of(application));
+        when(loanProductRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product()));
         when(loanApplicationRepository.save(any(LoanApplication.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"frozen\":true}");
+        when(loanRepository.save(any(Loan.class))).thenAnswer(inv -> inv.getArgument(0));
 
         LoanApplicationResponse response = loanApplicationService.approve(5L);
 
         assertThat(response.status()).isEqualTo(ApplicationStatus.APPROVED);
+
+        ArgumentCaptor<Loan> loanCaptor = ArgumentCaptor.forClass(Loan.class);
+        verify(loanRepository).save(loanCaptor.capture());
+        Loan createdLoan = loanCaptor.getValue();
+
+        assertThat(createdLoan.getBorrowerId()).isEqualTo(BORROWER_ID);
+        assertThat(createdLoan.getApplicationId()).isEqualTo(5L);
+        assertThat(createdLoan.getStatus()).isEqualTo(LoanStatus.AGREEMENT_PENDING);
+        assertThat(createdLoan.getPrincipalAmount()).isEqualByComparingTo("100000");
+        assertThat(createdLoan.getInterestRate()).isEqualByComparingTo("12");
+        assertThat(createdLoan.getTenureMonths()).isEqualTo(12);
+        assertThat(createdLoan.getEmiAmount())
+                .isEqualByComparingTo(EmiCalculator.calculateEmi(new BigDecimal("100000"), new BigDecimal("12"), 12));
+        assertThat(createdLoan.getTotalPayable())
+                .isEqualByComparingTo(createdLoan.getEmiAmount().multiply(BigDecimal.valueOf(12)));
+        assertThat(createdLoan.getAgreementSnapshot()).isEqualTo("{\"frozen\":true}");
     }
 
     @Test
@@ -165,11 +193,13 @@ class LoanApplicationServiceTest {
     void approvePropagatesOptimisticLockConflict() {
         LoanApplication application = pendingApplication(5L);
         when(loanApplicationRepository.findById(5L)).thenReturn(Optional.of(application));
+        when(loanProductRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product()));
         when(loanApplicationRepository.save(any(LoanApplication.class)))
                 .thenThrow(new ObjectOptimisticLockingFailureException(LoanApplication.class, 5L));
 
         assertThatThrownBy(() -> loanApplicationService.approve(5L))
                 .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+        verify(loanRepository, never()).save(any());
     }
 
     @Test
