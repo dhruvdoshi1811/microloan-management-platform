@@ -3,6 +3,7 @@ package com.dhruv.microloan_platform.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -39,6 +40,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
         String message = ex instanceof BadCredentialsException ? "Invalid email or password" : ex.getMessage();
         return build(HttpStatus.UNAUTHORIZED, message, request);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex,
+                                                               HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, "This record was updated by someone else - please retry", request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

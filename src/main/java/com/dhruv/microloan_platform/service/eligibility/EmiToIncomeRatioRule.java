@@ -1,0 +1,35 @@
+package com.dhruv.microloan_platform.service.eligibility;
+
+import com.dhruv.microloan_platform.entity.Borrower;
+import com.dhruv.microloan_platform.entity.LoanProduct;
+import com.dhruv.microloan_platform.exception.BusinessRuleException;
+import com.dhruv.microloan_platform.service.EmiCalculator;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+
+/**
+ * Rejects requests whose computed EMI would exceed a fixed share of the borrower's monthly
+ * income. The spec doesn't pin down a specific ratio, so 50% is an assumed default here -
+ * flagged as an easy constant to change if a different threshold is wanted.
+ */
+@Component
+@Order(4)
+public class EmiToIncomeRatioRule implements EligibilityRule {
+
+    private static final BigDecimal MAX_EMI_TO_INCOME_RATIO = new BigDecimal("0.50");
+
+    @Override
+    public void check(LoanProduct product, Borrower borrower, BigDecimal requestedAmount, int requestedTenureMonths) {
+        BigDecimal emi = EmiCalculator.calculateEmi(requestedAmount, product.getInterestRate(), requestedTenureMonths);
+        BigDecimal ratio = emi.divide(borrower.getMonthlyIncome(), new MathContext(6));
+
+        if (ratio.compareTo(MAX_EMI_TO_INCOME_RATIO) > 0) {
+            throw new BusinessRuleException(String.format(
+                    "Computed EMI %s exceeds %s%% of the borrower's monthly income %s",
+                    emi, MAX_EMI_TO_INCOME_RATIO.multiply(BigDecimal.valueOf(100)), borrower.getMonthlyIncome()));
+        }
+    }
+}

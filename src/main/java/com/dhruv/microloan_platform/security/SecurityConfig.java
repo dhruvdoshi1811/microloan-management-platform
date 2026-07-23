@@ -2,6 +2,7 @@ package com.dhruv.microloan_platform.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -37,6 +38,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        // Loan-product writes and application approve/reject are admin/underwriter
+                        // actions - everything else on these paths (reads, submitting an
+                        // application) only needs to be authenticated, same as Phase A.
+                        .requestMatchers(HttpMethod.POST, "/loan-products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/loan-products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/loan-applications/*/approve").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/loan-applications/*/reject").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 // Without formLogin()/httpBasic(), Spring Security's default entry point for an
                 // unauthenticated request is a bare 403. Set it explicitly to 401, since that's
