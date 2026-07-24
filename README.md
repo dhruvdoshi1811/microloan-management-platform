@@ -88,7 +88,7 @@ src/test/java/...                  unit tests, controller slices, one full-lifec
 frontend/                          React + Tailwind UI (separate npm project)
 Dockerfile, docker-compose.yml     backend containerization
 render.yaml, DEPLOYMENT.md         deployment
-DEMO.md                            click-through checklist for a demo recording
+DEMO.pdf                           demo walkthrough with screenshots
 ```
 
 One deliberate gap worth knowing about: `User` (login/auth) and `Borrower` (the loan-domain
@@ -150,4 +150,4 @@ map, each controller is small and single-purpose.
 ## Deployment & demo
 
 - [`DEPLOYMENT.md`](DEPLOYMENT.md) - deploying to Render (recommended) or Railway
-- [`DEMO.md`](DEMO.md) - a click-through checklist for recording a demo
+- [`DEMO.pdf`](DEMO.pdf) - a walkthrough of the full lifecycle with screenshots

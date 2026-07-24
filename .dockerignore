@@ -6,5 +6,6 @@ target/
 frontend/
 node_modules/
 *.md
+*.pdf
 .env
 .env.*
