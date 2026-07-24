@@ -26,12 +26,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Fetches Borrower/LoanProduct/Loan via their own repositories directly (same
- * cross-repository pattern KycService uses) rather than calling
- * BorrowerService/LoanProductService/LoanService - services talk to repositories, not to
- * each other, in this codebase.
- */
 @Service
 public class LoanApplicationService {
 

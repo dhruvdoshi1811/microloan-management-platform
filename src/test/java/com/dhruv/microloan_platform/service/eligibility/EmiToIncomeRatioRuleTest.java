@@ -16,7 +16,6 @@ class EmiToIncomeRatioRuleTest {
 
     private final EmiToIncomeRatioRule rule = new EmiToIncomeRatioRule();
 
-    // 100000 @ 12% over 12 months -> EMI = 8884.88 (see EmiCalculatorTest)
     private LoanProduct product() {
         return LoanProduct.builder()
                 .minPrincipal(new BigDecimal("10000"))
@@ -42,14 +41,12 @@ class EmiToIncomeRatioRuleTest {
 
     @Test
     void passesWhenEmiIsWithinFiftyPercentOfIncome() {
-        // 8884.88 / 20000 = ~44%
         assertThatCode(() -> rule.check(product(), borrowerWithIncome("20000"), new BigDecimal("100000"), 12))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void throwsWhenEmiExceedsFiftyPercentOfIncome() {
-        // 8884.88 / 10000 = ~89%
         assertThatThrownBy(() -> rule.check(product(), borrowerWithIncome("10000"), new BigDecimal("100000"), 12))
                 .isInstanceOf(BusinessRuleException.class);
     }

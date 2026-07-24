@@ -10,11 +10,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-/**
- * Rejects requests whose computed EMI would exceed a fixed share of the borrower's monthly
- * income. The spec doesn't pin down a specific ratio, so 50% is an assumed default here -
- * flagged as an easy constant to change if a different threshold is wanted.
- */
 @Component
 @Order(4)
 public class EmiToIncomeRatioRule implements EligibilityRule {

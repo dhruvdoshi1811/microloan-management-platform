@@ -16,13 +16,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * One row per processed repayment - an append-only ledger entry, never edited after
- * creation (unlike every other entity here, there's no updatedAt). paymentReference is
- * unique and doubles as the idempotency key: RepaymentService checks it before allocating
- * anything, so a retried request with the same reference returns the original result
- * instead of double-processing.
- */
 @Entity
 @Table(name = "repayments")
 @Getter

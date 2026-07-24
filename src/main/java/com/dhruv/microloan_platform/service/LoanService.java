@@ -19,12 +19,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Owns the Loan side of the lifecycle: reading a loan/its installments, and the
- * acknowledge-agreement transition that generates the installment schedule and disburses.
- * Doesn't touch LoanApplication/LoanProduct at all - by the time a Loan exists, its terms
- * are already frozen in agreementSnapshot, so nothing here needs either of those tables.
- */
 @Service
 public class LoanService {
 
@@ -69,11 +63,6 @@ public class LoanService {
         return LoanResponse.from(loanRepository.save(loan));
     }
 
-    /**
-     * Every installment carries the same EMI (totalPayable is defined as emi * tenureMonths,
-     * see LoanApplicationService.buildLoan, so there's no separate "true" total that could
-     * drift from n * emi to reconcile here - the schedule always sums exactly to totalPayable).
-     */
     private List<Installment> buildSchedule(Loan loan) {
         List<Installment> installments = new ArrayList<>();
         LocalDate today = LocalDate.now();

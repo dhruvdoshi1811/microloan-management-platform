@@ -14,10 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Single place that turns every exception the app throws into the same
- * {@link ErrorResponse} shape, so callers never have to guess the error body format.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Past;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Used for both create (POST) and update (PUT) - the fields that matter are the same. */
 public record BorrowerRequest(
 
         @NotBlank(message = "Full name is required")

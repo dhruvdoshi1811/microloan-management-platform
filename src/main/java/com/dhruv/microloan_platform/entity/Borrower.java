@@ -20,10 +20,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
-/**
- * A borrower's onboarding profile. {@code kycLevel} is derived and maintained by
- * {@code KycService} - never set directly by a controller.
- */
 @Entity
 @Table(name = "borrowers")
 @Getter

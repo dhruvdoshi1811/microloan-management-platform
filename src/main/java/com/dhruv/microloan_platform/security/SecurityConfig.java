@@ -1,5 +1,6 @@
 package com.dhruv.microloan_platform.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,44 +15,40 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Stateless JWT security: no sessions, no CSRF (there's no browser session to forge),
- * /auth/register and /auth/login are the only unauthenticated endpoints. The
- * AuthenticationManager bean below is what AuthService uses to check credentials on login;
- * Spring Boot auto-wires it to our CustomUserDetailsService + BCryptPasswordEncoder beans.
- */
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final List<String> corsAllowedOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                           @Value("${app.cors.allowed-origins}") List<String> corsAllowedOrigins) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsAllowedOrigins = corsAllowedOrigins;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
-                        // Loan-product writes and application approve/reject are admin/underwriter
-                        // actions - everything else on these paths (reads, submitting an
-                        // application) only needs to be authenticated, same as Phase A.
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/loan-products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/loan-products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/loan-applications/*/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/loan-applications/*/reject").hasRole("ADMIN")
-                        // The whole "Admin / Observability" endpoint group - a blanket prefix rule,
-                        // simpler than the per-method matchers above since this entire group is admin-only.
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                // Without formLogin()/httpBasic(), Spring Security's default entry point for an
-                // unauthenticated request is a bare 403. Set it explicitly to 401, since that's
-                // the correct status for "no/invalid credentials" in a token-based API.
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,6 +59,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(corsAllowedOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

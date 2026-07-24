@@ -10,11 +10,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * @DataJpaTest boots just the JPA layer against the H2 datasource configured in
- * src/test/resources/application.properties - and Flyway actually runs V1__init_schema.sql
- * against it first, so this is exercising the real migration, not a Hibernate-generated schema.
- */
 @DataJpaTest
 class UserRepositoryTest {
 

@@ -17,11 +17,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
-/**
- * One row per OTP challenge issued during KYC. A borrower can have many of these over
- * time (one per initiate call); {@code KycService} always looks at the most recent one
- * for a given borrower + document type.
- */
 @Entity
 @Table(name = "otp_verifications")
 @Getter

@@ -3,10 +3,6 @@ package com.dhruv.microloan_platform.exception;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Uniform error body returned by every failed request. {@code fieldErrors} is only
- * populated for {@code @Valid} validation failures (field name -> message); null otherwise.
- */
 public record ErrorResponse(
         Instant timestamp,
         int status,

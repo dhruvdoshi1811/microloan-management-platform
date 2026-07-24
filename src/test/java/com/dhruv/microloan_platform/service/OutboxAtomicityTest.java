@@ -21,15 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
-/**
- * The proof for "no event lost on crash": the real RepaymentService, with OutboxEventWriter
- * replaced by a mock stubbed to throw. This forces a real failure partway through
- * processRepayment's transaction - Spring rolls the whole thing back on the unchecked
- * exception, exactly as a real crash mid-transaction would. If the state change and its
- * outbox row weren't genuinely atomic, this test would find a Loan with an updated
- * totalPaid but no Repayment row (or the reverse) after the "crash." It won't, because
- * @Transactional wraps the state change and the outbox write in one unit.
- */
 @SpringBootTest
 class OutboxAtomicityTest {
 
@@ -53,8 +44,6 @@ class OutboxAtomicityTest {
 
     @Test
     void repaymentIsFullyRolledBackWhenTheOutboxWriteFails() {
-        // Setup succeeds even with OutboxEventWriter mocked - its write() calls during
-        // approve() are harmless no-ops until stubbed below.
         Long borrowerId = borrowerService.create(new BorrowerRequest(
                 "Atomicity Borrower", "9999999999", "atomicity-test@example.com",
                 LocalDate.of(1990, 1, 1), new BigDecimal("1000000.00"))).id();

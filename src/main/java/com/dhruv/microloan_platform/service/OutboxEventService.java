@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-/** Read side for GET /admin/outbox. Kept separate from OutboxEventWriter - that one only writes, this one only reads. */
 @Service
 public class OutboxEventService {
 

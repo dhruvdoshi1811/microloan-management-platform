@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** approve/reject are restricted to ADMIN in SecurityConfig; submit/get/list are open to any authenticated user. */
 @RestController
 @RequestMapping("/loan-applications")
 public class LoanApplicationController {

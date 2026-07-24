@@ -66,8 +66,6 @@ class KycServiceTest {
         when(borrowerRepository.findById(BORROWER_ID)).thenReturn(Optional.of(borrower));
     }
 
-    // ---- initiate ----
-
     @Test
     void initiateThrowsWhenBorrowerMissing() {
         when(borrowerRepository.findById(BORROWER_ID)).thenReturn(Optional.empty());
@@ -119,12 +117,9 @@ class KycServiceTest {
 
         kycService.initiate(BORROWER_ID, new KycInitiateRequest(DocumentType.PAN, "ABCDE1234F"));
 
-        // Same number as already on file -> no uniqueness lookup needed, and re-initiating resets verification.
         verify(kycRecordRepository, never()).existsByPanNumber(any());
         assertThat(existingRecord.isPanVerified()).isFalse();
     }
-
-    // ---- verifyOtp ----
 
     @Test
     void verifyOtpThrowsWhenNoOtpInitiated() {
@@ -215,7 +210,6 @@ class KycServiceTest {
                 .thenReturn(Optional.of(otp));
         when(otpVerificationRepository.save(any(OtpVerification.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // PAN already verified from an earlier call; this call verifies Aadhaar too.
         KycRecord kycRecord = KycRecord.builder()
                 .borrowerId(BORROWER_ID)
                 .panNumber("ABCDE1234F").panVerified(true)
@@ -231,8 +225,6 @@ class KycServiceTest {
         assertThat(response.kycLevel()).isEqualTo(KycLevel.FULL);
         assertThat(borrower.getKycLevel()).isEqualTo(KycLevel.FULL);
     }
-
-    // ---- getKyc ----
 
     @Test
     void getKycThrowsWhenBorrowerMissing() {

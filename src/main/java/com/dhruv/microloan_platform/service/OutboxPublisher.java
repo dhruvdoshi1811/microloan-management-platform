@@ -13,15 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
-/**
- * Polls PENDING outbox rows and "publishes" them - there's no real message broker/webhook
- * target in this project (same demo-boundary honesty as KYC's mocked OTP in Phase A), so
- * publishing here just means logging what would have been sent, then marking the row
- * PUBLISHED. The actual guarantee this class provides isn't "nothing gets sent twice to some
- * external system" (there is no such system) - it's that the query itself, filtering on
- * status = PENDING, makes it structurally impossible for an already-published row to be
- * selected again by any future call, however many times this runs.
- */
 @Service
 public class OutboxPublisher {
 
@@ -34,7 +25,6 @@ public class OutboxPublisher {
         this.outboxEventRepository = outboxEventRepository;
     }
 
-    /** Processes one page of PENDING events per call; a backlog larger than that drains over subsequent calls. */
     @Transactional
     public int publishPending() {
         Pageable pageable = PageRequest.of(0, PAGE_SIZE);

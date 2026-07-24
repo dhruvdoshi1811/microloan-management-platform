@@ -12,11 +12,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.function.Function;
 
-/**
- * Issues and validates the HS256 JWTs used for stateless auth. Expiry is enforced by the
- * jjwt parser itself - it throws on an expired token, so {@link #isTokenValid} just needs
- * to catch that.
- */
 @Service
 public class JwtService {
 

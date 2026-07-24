@@ -1,0 +1,24 @@
+databases:
+  - name: microloan-db
+    databaseName: microloan
+    user: microloan
+    plan: free
+
+services:
+  - type: web
+    name: microloan-platform
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

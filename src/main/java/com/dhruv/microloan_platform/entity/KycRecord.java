@@ -16,11 +16,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
-/**
- * One row per borrower, tracking their PAN/Aadhaar numbers and whether each has been
- * OTP-verified. {@code borrowerId} is a plain FK column, not a JPA relationship - see
- * Phase A plan notes for why (matches the spec's explicit-FK style throughout).
- */
 @Entity
 @Table(name = "kyc_records")
 @Getter

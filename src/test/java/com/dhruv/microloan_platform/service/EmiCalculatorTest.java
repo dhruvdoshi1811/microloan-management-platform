@@ -10,8 +10,6 @@ class EmiCalculatorTest {
 
     @Test
     void calculatesEmiForAKnownExample() {
-        // 100,000 principal, 12% annual rate, 12 months -> a well-known reducing-balance
-        // EMI textbook example: ~8884.88
         BigDecimal emi = EmiCalculator.calculateEmi(
                 new BigDecimal("100000"), new BigDecimal("12"), 12);
 

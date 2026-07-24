@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-/** paymentMode is a free-form string - the spec doesn't enumerate a fixed set of values for it. */
 public record RepaymentRequest(
 
         @NotNull(message = "Loan id is required")

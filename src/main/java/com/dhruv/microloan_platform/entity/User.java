@@ -18,10 +18,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
-/**
- * The auth identity used to log in (email/password/role). Deliberately independent of
- * {@link Borrower} in this phase - see Phase A plan notes for why.
- */
 @Entity
 @Table(name = "users")
 @Getter

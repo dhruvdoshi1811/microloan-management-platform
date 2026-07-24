@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Both endpoints require ADMIN in SecurityConfig, matching the "Admin / Observability" endpoint map heading. */
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -27,7 +26,6 @@ public class AdminController {
         this.outboxEventService = outboxEventService;
     }
 
-    /** Manually triggers the same logic the daily @Scheduled job runs, for demo purposes. */
     @PostMapping("/run-overdue-check")
     public ResponseEntity<OverdueCheckResult> runOverdueCheck() {
         return ResponseEntity.ok(overdueService.runOverdueCheck());

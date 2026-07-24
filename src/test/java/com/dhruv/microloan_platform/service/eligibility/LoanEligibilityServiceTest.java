@@ -13,11 +13,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Real rule instances, no mocks - these rules are pure logic, so this exercises the actual
- * engine wiring (list order = check order = fail-fast) rather than re-testing each rule's
- * internals, which the per-rule test classes already cover.
- */
 class LoanEligibilityServiceTest {
 
     private final LoanEligibilityService engine = new LoanEligibilityService(List.of(
@@ -54,8 +49,6 @@ class LoanEligibilityServiceTest {
 
     @Test
     void stopsAtFirstFailingRuleRatherThanCheckingAll() {
-        // Violates both PrincipalRangeRule (too low) and TenureRangeRule (too short) -
-        // since PrincipalRangeRule is first in the list, its message should win.
         assertThatThrownBy(() -> engine.checkEligibility(product(), borrower(), new BigDecimal("100"), 1))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Requested amount");

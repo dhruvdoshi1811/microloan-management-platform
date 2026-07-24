@@ -20,11 +20,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
-/**
- * One row per due EMI, generated all at once when a Loan's agreement is acknowledged.
- * Phase D's repayment engine allocates funds across these FIFO by installmentNo;
- * penaltyApplied guards a later overdue batch job from charging a penalty twice.
- */
 @Entity
 @Table(name = "installments")
 @Getter

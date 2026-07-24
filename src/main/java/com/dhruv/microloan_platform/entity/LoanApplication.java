@@ -20,13 +20,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * A borrower's request against a specific LoanProduct. borrowerId/productId are plain FK
- * columns, not JPA relationships - same convention as KycRecord/OtpVerification.
- * {@code version} is optimistic locking: two concurrent approve/reject calls on the same
- * PENDING row will have the second save() throw ObjectOptimisticLockingFailureException
- * (mapped to 409 by GlobalExceptionHandler) rather than silently double-processing.
- */
 @Entity
 @Table(name = "loan_applications")
 @Getter

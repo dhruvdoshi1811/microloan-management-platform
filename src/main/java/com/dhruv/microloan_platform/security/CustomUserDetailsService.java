@@ -7,10 +7,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/**
- * Adapts our {@link User} entity to Spring Security's {@link UserDetails}. Email is the
- * username; role becomes a single "ROLE_x" authority.
- */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 

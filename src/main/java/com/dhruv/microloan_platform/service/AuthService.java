@@ -15,11 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Register creates the account only - it deliberately does not issue a token. Login is a
- * separate call that goes through Spring Security's {@link AuthenticationManager}, which is
- * what actually checks the password against the BCrypt hash.
- */
 @Service
 public class AuthService {
 

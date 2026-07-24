@@ -87,12 +87,4 @@ class LoanApplicationRepositoryTest {
         assertThat(updated.getVersion()).isEqualTo(1L);
     }
 
-    // A genuine two-concurrent-writers conflict needs two independent, overlapping
-    // transactions (real threads, not just two finds in one @DataJpaTest transaction -
-    // Hibernate's first-level cache collapses those into one managed instance, and a
-    // detached-entity merge() reloads the current version rather than rejecting a stale
-    // one, so neither approach actually reproduces a conflict here). That's exactly the
-    // properly-threaded test Phase D builds for repayment processing; LoanApplicationServiceTest
-    // .approvePropagatesOptimisticLockConflict already proves this service correctly surfaces
-    // ObjectOptimisticLockingFailureException as a 409 when the repository throws it.
 }

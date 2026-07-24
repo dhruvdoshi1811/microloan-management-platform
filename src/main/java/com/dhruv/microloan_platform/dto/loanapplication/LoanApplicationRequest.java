@@ -6,11 +6,6 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-/**
- * borrowerId is a body field, not derived from the caller's JWT - User and Borrower are
- * still unlinked (Phase A decision), so the caller must say which borrower this application
- * is for.
- */
 public record LoanApplicationRequest(
 
         @NotNull(message = "Borrower id is required")

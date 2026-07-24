@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-/** Used for both create (POST) and update (PUT), same as BorrowerRequest. */
 public record LoanProductRequest(
 
         @NotBlank(message = "Name is required")

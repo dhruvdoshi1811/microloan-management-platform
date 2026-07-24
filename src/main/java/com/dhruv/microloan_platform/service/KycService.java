@@ -22,12 +22,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Owns the KYC lifecycle: initiate (register a PAN/Aadhaar number, issue an OTP) and
- * verify-otp (check the code, flip the verified flag, recompute the borrower's KycLevel).
- * There's no real SMS/UIDAI gateway here - see {@link OtpInitiateResponse} for why the code
- * comes back in the response instead of being "sent" anywhere.
- */
 @Service
 public class KycService {
 

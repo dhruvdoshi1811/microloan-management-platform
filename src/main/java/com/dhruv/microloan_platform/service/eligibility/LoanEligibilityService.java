@@ -7,11 +7,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * The "engine": runs every {@link EligibilityRule} bean, in the order Spring injects them
- * (governed by each rule's {@code @Order}), stopping at the first one that throws. Adding a
- * new rule never requires touching this class.
- */
 @Service
 public class LoanEligibilityService {
 

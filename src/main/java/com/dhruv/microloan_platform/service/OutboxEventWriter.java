@@ -5,14 +5,6 @@ import com.dhruv.microloan_platform.repository.OutboxEventRepository;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * Shared cross-cutting helper injected into every service that needs to record a
- * notification-worthy state change - not a domain service with its own business rules, the
- * same category as injecting ObjectMapper directly already is. Callers are responsible for
- * calling this from WITHIN their own @Transactional method, so the OutboxEvent row commits
- * (or rolls back) atomically with whatever state change it's describing - that atomicity is
- * the entire point of the transactional outbox pattern.
- */
 @Service
 public class OutboxEventWriter {
 

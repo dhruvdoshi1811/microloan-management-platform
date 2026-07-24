@@ -19,11 +19,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * The configurable constraints an admin sets per loan product - principal/tenure bounds,
- * rates, and the minimum KycLevel a borrower needs. The eligibility rule engine
- * (service/eligibility) reads these fields instead of hardcoding limits in code.
- */
 @Entity
 @Table(name = "loan_products")
 @Getter

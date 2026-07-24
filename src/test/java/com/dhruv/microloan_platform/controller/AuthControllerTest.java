@@ -27,13 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Imports the real SecurityConfig + JwtAuthenticationFilter so the /auth/** permitAll rule
- * is genuinely exercised, rather than falling back to Boot's "deny everything" default
- * security for an unconfigured slice test. JwtService/CustomUserDetailsService are mocked
- * since no real token is presented in these tests (JwtServiceTest already covers token
- * internals) - @WithMockUser is used instead to simulate an authenticated principal for /me.
- */
 @WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class})
 class AuthControllerTest {

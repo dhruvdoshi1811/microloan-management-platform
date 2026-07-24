@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface OtpVerificationRepository extends JpaRepository<OtpVerification, Long> {
 
-    /** The most recently issued OTP challenge for this borrower + document, if any. */
     Optional<OtpVerification> findTopByBorrowerIdAndDocumentTypeOrderByIdDesc(Long borrowerId, DocumentType documentType);
 }

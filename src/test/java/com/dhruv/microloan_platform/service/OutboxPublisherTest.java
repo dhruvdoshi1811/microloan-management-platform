@@ -10,15 +10,6 @@ import org.springframework.data.domain.PageRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @DataJpaTest against the real H2 DB, with OutboxPublisher constructed manually over the
- * autowired repository (it only needs that one dependency - no need for a full
- * @SpringBootTest context just to exercise this).
- *
- * This is the proof for "none is double-published": the guarantee isn't code remembering
- * what it already sent, it's that the query itself (status = PENDING) structurally excludes
- * an already-published row from ever being selected again, however many times this runs.
- */
 @DataJpaTest
 class OutboxPublisherTest {
 

@@ -20,14 +20,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Created the moment a LoanApplication is approved, in AGREEMENT_PENDING status.
- * {@code agreementSnapshot} is a JSON string frozen at that instant (principal, rate,
- * tenure, computed EMI) - even if the originating LoanProduct's rate changes later, this
- * loan's terms never silently change, since nothing here re-reads LoanProduct after
- * creation. Plain Long FKs (borrowerId, applicationId), same convention as every other
- * entity in this codebase.
- */
 @Entity
 @Table(name = "loans")
 @Getter
@@ -53,12 +45,6 @@ public class Loan {
     @Column(name = "interest_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal interestRate;
 
-    /**
-     * Frozen from LoanProduct.penaltyRate at approval time, same as interestRate - added in
-     * Phase E because the overdue batch job needs to compute penalties without parsing the
-     * agreementSnapshot JSON (which already carried this value, but only as an unqueryable
-     * string field).
-     */
     @Column(name = "penalty_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal penaltyRate;
 

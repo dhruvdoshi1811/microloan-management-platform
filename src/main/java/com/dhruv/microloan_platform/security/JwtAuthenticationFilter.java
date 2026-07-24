@@ -14,13 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Runs once per request ahead of Spring Security's own auth filter: reads a
- * {@code Authorization: Bearer <token>} header, validates it, and if valid, populates the
- * {@link SecurityContextHolder} so downstream {@code authorizeHttpRequests} rules see an
- * authenticated principal. Leaves the request untouched (no auth set) on any missing or
- * invalid token - authorization then rejects it with 401/403 as appropriate.
- */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

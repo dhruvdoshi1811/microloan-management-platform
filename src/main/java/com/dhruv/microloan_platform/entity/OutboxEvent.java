@@ -17,13 +17,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
-/**
- * One row per notification-worthy state change (loan approved, repayment received, loan
- * overdue), written in the SAME transaction as that state change by OutboxEventWriter - that
- * atomicity is the entire point of the pattern: a crash can never leave "the fact happened
- * but nobody will ever be told" or the reverse. OutboxPublisher separately polls PENDING rows
- * and flips them to PUBLISHED; publishedAt (not a generic updatedAt) records exactly when.
- */
 @Entity
 @Table(name = "outbox_events")
 @Getter

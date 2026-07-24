@@ -20,14 +20,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * The pessimistic-locking core of the platform. processRepayment locks the Loan row and
- * every unpaid Installment row for it (both PESSIMISTIC_WRITE, i.e. SELECT ... FOR UPDATE)
- * before allocating anything - chosen over @Version here specifically because retrying a
- * failed multi-row FIFO allocation is expensive and confusing (it's money, and there's no
- * way to "resume" a partial allocation), whereas a short wait behind a lock is not. Contrast
- * with LoanApplication/Loan's @Version in Phase C, where conflicts are rare and a retry is cheap.
- */
 @Service
 public class RepaymentService {
 
@@ -49,11 +41,6 @@ public class RepaymentService {
         Loan loan = loanRepository.findByIdForUpdate(request.loanId())
                 .orElseThrow(() -> new ResourceNotFoundException("Loan " + request.loanId() + " not found"));
 
-        // Authoritative idempotency check, done AFTER acquiring the loan lock: two concurrent
-        // requests with the same paymentReference for this loan serialize on that lock, so by
-        // the time the second one reaches this line, the first's Repayment row (if any) is
-        // already committed and visible. A pre-lock check would only be a fast-path
-        // optimization, never required for correctness - so there's just this one check.
         Optional<Repayment> existing = repaymentRepository.findByPaymentReference(request.paymentReference());
         if (existing.isPresent()) {
             return RepaymentResponse.from(existing.get());
@@ -110,7 +97,6 @@ public class RepaymentService {
                 .toList();
     }
 
-    /** Applies {@code amount} across installments in the order given (FIFO), oldest first. */
     private void allocateFifo(BigDecimal amount, List<Installment> installmentsInFifoOrder) {
         BigDecimal remaining = amount;
 

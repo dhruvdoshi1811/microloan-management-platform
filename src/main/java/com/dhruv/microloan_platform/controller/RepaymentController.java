@@ -14,11 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * No class-level @RequestMapping, unlike every other controller so far - these three paths
- * (/repayments, /repayments/{id}, /loans/{id}/repayments) don't share a common prefix.
- * No admin restriction; not marked so in the endpoint map.
- */
 @RestController
 public class RepaymentController {
 

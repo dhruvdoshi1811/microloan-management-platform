@@ -22,16 +22,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The daily overdue-detection + idempotent-penalty batch job (also triggerable on demand via
- * POST /admin/run-overdue-check). One transaction for the whole run (not per-page or
- * per-loan) - simpler than chasing genuine per-page transactions, which would need either a
- * second bean or Spring's self-injection trick to dodge the proxy self-invocation pitfall,
- * and nothing here calls a flaky external system that would need per-record failure
- * isolation. Reuses Phase D's locked finders (LoanRepository.findByIdForUpdate,
- * InstallmentRepository.findUnpaidByLoanIdForUpdate) per loan, since this writes to the same
- * Installment rows RepaymentService does.
- */
 @Service
 public class OverdueService {
 

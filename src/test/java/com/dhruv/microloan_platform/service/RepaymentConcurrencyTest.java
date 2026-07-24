@@ -25,18 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Deliberately @SpringBootTest, not @DataJpaTest: there's no enclosing rolled-back
- * transaction here, so each thread's call to RepaymentService.processRepayment (itself
- * @Transactional) is a genuine, independent, committing transaction against the real H2 DB -
- * exactly what's needed to prove the pessimistic lock actually serializes two writers,
- * rather than two calls that just happen to run one after another in the same session.
- *
- * Without the lock, both threads could read installment #1 as unpaid at the same time and
- * both credit it (a lost update / double-spend). With it, whichever transaction commits
- * first gets installment #1; the other blocks, then re-reads after the commit and correctly
- * falls through to installment #2 instead.
- */
 @SpringBootTest
 class RepaymentConcurrencyTest {
 

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Write endpoints (POST/PUT) are restricted to ADMIN in SecurityConfig; reads are open to any authenticated user. */
 @RestController
 @RequestMapping("/loan-products")
 public class LoanProductController {

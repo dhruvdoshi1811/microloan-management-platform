@@ -39,7 +39,7 @@ class JwtServiceTest {
     void isTokenValidFalseForExpiredToken() {
         JwtProperties expiredProps = new JwtProperties();
         expiredProps.setSecret("unit-test-secret-key-at-least-32-bytes-long-0123456789");
-        expiredProps.setExpirationMs(-1_000); // already expired the instant it's issued
+        expiredProps.setExpirationMs(-1_000);
         JwtService expiredJwtService = new JwtService(expiredProps);
 
         String token = expiredJwtService.generateToken("alice@example.com", "BORROWER");

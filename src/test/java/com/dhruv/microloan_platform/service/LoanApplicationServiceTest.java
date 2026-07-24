@@ -103,8 +103,6 @@ class LoanApplicationServiceTest {
     @Test
     void submitRunsEligibilityThenSavesPendingApplication() {
         LoanApplicationRequest request = new LoanApplicationRequest(BORROWER_ID, PRODUCT_ID, new BigDecimal("100000"), 12);
-        // Reused as the same references below: Borrower/LoanProduct have no equals(), so
-        // verify(...) against freshly-built instances would fail on reference equality.
         Borrower borrower = borrower();
         LoanProduct product = product();
         when(borrowerRepository.findById(BORROWER_ID)).thenReturn(Optional.of(borrower));

@@ -97,7 +97,7 @@ class OverdueServiceTest {
 
         assertThat(installment.getStatus()).isEqualTo(InstallmentStatus.OVERDUE);
         assertThat(installment.isPenaltyApplied()).isTrue();
-        assertThat(installment.getPenaltyAmount()).isEqualByComparingTo("400.00"); // 20000 * 2%
+        assertThat(installment.getPenaltyAmount()).isEqualByComparingTo("400.00");
         assertThat(installment.getTotalDue()).isEqualByComparingTo("20400.00");
         assertThat(loan.getStatus()).isEqualTo(LoanStatus.OVERDUE);
 
@@ -134,7 +134,7 @@ class OverdueServiceTest {
     @Test
     void doesNotReChargePenaltyOrReNotifyOnAlreadyOverdueInstallment() {
         Loan loan = activeLoan();
-        loan.setStatus(LoanStatus.OVERDUE); // already overdue from a previous run
+        loan.setStatus(LoanStatus.OVERDUE);
         stubSinglePage(loan);
         when(loanRepository.findByIdForUpdate(LOAN_ID)).thenReturn(Optional.of(loan));
         Installment alreadyProcessed = overdueEligibleInstallment(InstallmentStatus.OVERDUE, true);
@@ -145,8 +145,8 @@ class OverdueServiceTest {
 
         OverdueCheckResult result = overdueService.runOverdueCheck();
 
-        assertThat(alreadyProcessed.getPenaltyAmount()).isEqualByComparingTo("400.00"); // unchanged
-        assertThat(alreadyProcessed.getTotalDue()).isEqualByComparingTo("20400.00"); // unchanged
+        assertThat(alreadyProcessed.getPenaltyAmount()).isEqualByComparingTo("400.00");
+        assertThat(alreadyProcessed.getTotalDue()).isEqualByComparingTo("20400.00");
         assertThat(result.installmentsMarkedOverdue()).isZero();
         assertThat(result.penaltiesApplied()).isZero();
         verify(loanRepository, never()).save(any());

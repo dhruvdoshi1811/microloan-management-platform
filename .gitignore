@@ -32,5 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-### Claude Code ###
 .claude/
+
+### Frontend (frontend/, Vite) ###
+frontend/node_modules/
+frontend/dist/
+frontend/.env

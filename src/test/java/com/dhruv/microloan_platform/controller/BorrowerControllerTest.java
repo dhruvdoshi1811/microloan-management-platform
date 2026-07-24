@@ -33,10 +33,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * See AuthControllerTest for why SecurityConfig + JwtAuthenticationFilter are imported and
- * JwtService/CustomUserDetailsService are mocked rather than exercised for real here.
- */
 @WebMvcTest(BorrowerController.class)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class})
 class BorrowerControllerTest {
