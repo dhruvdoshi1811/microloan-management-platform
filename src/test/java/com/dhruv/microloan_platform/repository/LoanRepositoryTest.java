@@ -70,6 +70,7 @@ class LoanRepositoryTest {
                 .applicationId(applicationId)
                 .principalAmount(new BigDecimal("100000.00"))
                 .interestRate(new BigDecimal("12.50"))
+                .penaltyRate(new BigDecimal("2.00"))
                 .tenureMonths(12)
                 .emiAmount(new BigDecimal("8930.11"))
                 .totalPayable(new BigDecimal("107161.32"))

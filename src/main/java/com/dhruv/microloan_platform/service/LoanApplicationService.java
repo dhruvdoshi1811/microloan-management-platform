@@ -4,6 +4,7 @@ import com.dhruv.microloan_platform.dto.loan.AgreementSnapshot;
 import com.dhruv.microloan_platform.dto.loanapplication.LoanApplicationRequest;
 import com.dhruv.microloan_platform.dto.loanapplication.LoanApplicationResponse;
 import com.dhruv.microloan_platform.dto.loanapplication.RejectRequest;
+import com.dhruv.microloan_platform.dto.outbox.LoanApprovedEventPayload;
 import com.dhruv.microloan_platform.entity.ApplicationStatus;
 import com.dhruv.microloan_platform.entity.Borrower;
 import com.dhruv.microloan_platform.entity.Loan;
@@ -40,19 +41,22 @@ public class LoanApplicationService {
     private final LoanRepository loanRepository;
     private final LoanEligibilityService loanEligibilityService;
     private final ObjectMapper objectMapper;
+    private final OutboxEventWriter outboxEventWriter;
 
     public LoanApplicationService(LoanApplicationRepository loanApplicationRepository,
                                    BorrowerRepository borrowerRepository,
                                    LoanProductRepository loanProductRepository,
                                    LoanRepository loanRepository,
                                    LoanEligibilityService loanEligibilityService,
-                                   ObjectMapper objectMapper) {
+                                   ObjectMapper objectMapper,
+                                   OutboxEventWriter outboxEventWriter) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.borrowerRepository = borrowerRepository;
         this.loanProductRepository = loanProductRepository;
         this.loanRepository = loanRepository;
         this.loanEligibilityService = loanEligibilityService;
         this.objectMapper = objectMapper;
+        this.outboxEventWriter = outboxEventWriter;
     }
 
     @Transactional
@@ -91,7 +95,11 @@ public class LoanApplicationService {
 
         application.setStatus(ApplicationStatus.APPROVED);
         loanApplicationRepository.save(application);
-        loanRepository.save(buildLoan(application, product));
+        Loan loan = loanRepository.save(buildLoan(application, product));
+
+        outboxEventWriter.write("LOAN", loan.getId(), "LOAN_APPROVED",
+                new LoanApprovedEventPayload(application.getId(), loan.getId(),
+                        loan.getPrincipalAmount(), loan.getEmiAmount(), Instant.now()));
 
         return LoanApplicationResponse.from(application);
     }
@@ -112,6 +120,7 @@ public class LoanApplicationService {
                 .applicationId(application.getId())
                 .principalAmount(principal)
                 .interestRate(product.getInterestRate())
+                .penaltyRate(product.getPenaltyRate())
                 .tenureMonths(tenureMonths)
                 .emiAmount(emi)
                 .totalPayable(totalPayable)

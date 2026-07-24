@@ -1,5 +1,6 @@
 package com.dhruv.microloan_platform.service;
 
+import com.dhruv.microloan_platform.dto.outbox.RepaymentReceivedEventPayload;
 import com.dhruv.microloan_platform.dto.repayment.RepaymentRequest;
 import com.dhruv.microloan_platform.dto.repayment.RepaymentResponse;
 import com.dhruv.microloan_platform.entity.Installment;
@@ -33,12 +34,14 @@ public class RepaymentService {
     private final RepaymentRepository repaymentRepository;
     private final LoanRepository loanRepository;
     private final InstallmentRepository installmentRepository;
+    private final OutboxEventWriter outboxEventWriter;
 
     public RepaymentService(RepaymentRepository repaymentRepository, LoanRepository loanRepository,
-                             InstallmentRepository installmentRepository) {
+                             InstallmentRepository installmentRepository, OutboxEventWriter outboxEventWriter) {
         this.repaymentRepository = repaymentRepository;
         this.loanRepository = loanRepository;
         this.installmentRepository = installmentRepository;
+        this.outboxEventWriter = outboxEventWriter;
     }
 
     @Transactional
@@ -84,8 +87,13 @@ public class RepaymentService {
                 .paymentMode(request.paymentMode())
                 .balanceAfter(loan.getTotalPayable().subtract(loan.getTotalPaid()))
                 .build();
+        Repayment savedRepayment = repaymentRepository.save(repayment);
 
-        return RepaymentResponse.from(repaymentRepository.save(repayment));
+        outboxEventWriter.write("LOAN", loan.getId(), "REPAYMENT_RECEIVED",
+                new RepaymentReceivedEventPayload(savedRepayment.getId(), loan.getId(),
+                        savedRepayment.getAmount(), savedRepayment.getBalanceAfter(), savedRepayment.getPaidAt()));
+
+        return RepaymentResponse.from(savedRepayment);
     }
 
     public RepaymentResponse get(Long id) {

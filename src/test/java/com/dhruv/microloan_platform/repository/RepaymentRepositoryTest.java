@@ -63,6 +63,7 @@ class RepaymentRepositoryTest {
                 .applicationId(applicationId)
                 .principalAmount(new BigDecimal("100000.00"))
                 .interestRate(new BigDecimal("12.50"))
+                .penaltyRate(new BigDecimal("2.00"))
                 .tenureMonths(12)
                 .emiAmount(new BigDecimal("8884.88"))
                 .totalPayable(new BigDecimal("106618.56"))

@@ -62,6 +62,7 @@ class InstallmentRepositoryTest {
                 .applicationId(applicationId)
                 .principalAmount(new BigDecimal("100000.00"))
                 .interestRate(new BigDecimal("12.50"))
+                .penaltyRate(new BigDecimal("2.00"))
                 .tenureMonths(3)
                 .emiAmount(new BigDecimal("34000.00"))
                 .totalPayable(new BigDecimal("102000.00"))

@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,8 @@ class RepaymentServiceTest {
     private LoanRepository loanRepository;
     @Mock
     private InstallmentRepository installmentRepository;
+    @Mock
+    private OutboxEventWriter outboxEventWriter;
 
     @InjectMocks
     private RepaymentService repaymentService;
@@ -102,6 +105,8 @@ class RepaymentServiceTest {
         assertThat(loan.getTotalPaid()).isEqualByComparingTo("20000.00");
         assertThat(loan.getStatus()).isEqualTo(LoanStatus.ACTIVE);
         assertThat(response.balanceAfter()).isEqualByComparingTo("180000.00");
+
+        verify(outboxEventWriter).write(eq("LOAN"), eq(LOAN_ID), eq("REPAYMENT_RECEIVED"), any());
     }
 
     @Test
@@ -153,6 +158,7 @@ class RepaymentServiceTest {
         verify(installmentRepository, never()).saveAll(anyList());
         verify(loanRepository, never()).save(any());
         verify(repaymentRepository, never()).save(any());
+        verify(outboxEventWriter, never()).write(any(), any(), any(), any());
     }
 
     @Test

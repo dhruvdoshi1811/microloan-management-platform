@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/loan-products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/loan-applications/*/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/loan-applications/*/reject").hasRole("ADMIN")
+                        // The whole "Admin / Observability" endpoint group - a blanket prefix rule,
+                        // simpler than the per-method matchers above since this entire group is admin-only.
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 // Without formLogin()/httpBasic(), Spring Security's default entry point for an
                 // unauthenticated request is a bare 403. Set it explicitly to 401, since that's

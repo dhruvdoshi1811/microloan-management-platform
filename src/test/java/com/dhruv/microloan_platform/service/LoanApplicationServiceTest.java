@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -54,6 +55,8 @@ class LoanApplicationServiceTest {
     private LoanEligibilityService loanEligibilityService;
     @Mock
     private ObjectMapper objectMapper;
+    @Mock
+    private OutboxEventWriter outboxEventWriter;
 
     @InjectMocks
     private LoanApplicationService loanApplicationService;
@@ -177,6 +180,8 @@ class LoanApplicationServiceTest {
         assertThat(createdLoan.getTotalPayable())
                 .isEqualByComparingTo(createdLoan.getEmiAmount().multiply(BigDecimal.valueOf(12)));
         assertThat(createdLoan.getAgreementSnapshot()).isEqualTo("{\"frozen\":true}");
+
+        verify(outboxEventWriter).write(eq("LOAN"), any(), eq("LOAN_APPROVED"), any());
     }
 
     @Test
