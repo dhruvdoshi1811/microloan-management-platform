@@ -1,9 +1,8 @@
 # Microloan Management Platform
 
 A backend for running a small digital lending business, plus a minimal frontend that demos
-the whole flow. Built as a personal project to go deep on things like: row-level locking under with concurrency, an immutable audit trail for
-money terms, and reliable event publishing when the DB commit and the "notify someone" step
-can't be the same operation.
+the whole flow. I built this as a personal project to go deep on things like: row-level locking with concurrency, an immutable audit trail for
+money terms, and reliable event publishing.
 
 ## What a microloan is
 
