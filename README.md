@@ -7,7 +7,7 @@ can't be the same operation.
 
 ## What a microloan is
 
-A microloan is a small, short-tenure loan, usually a few thousand to a few lakh rupees, paid
+A microloan is a small, short-tenure loan, usually a few thousand to a few hundred thousand dollars, paid
 back over a handful of months in fixed EMIs (equated monthly installments). Compared to a
 regular bank loan, the amounts are smaller and the underwriting is lighter: instead of a
 formal credit bureau check, a lender defines simple eligibility rules (income, requested
