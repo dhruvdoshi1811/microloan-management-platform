@@ -91,55 +91,7 @@ render.yaml, DEPLOYMENT.md         deployment
 DEMO.pdf                           demo walkthrough with screenshots
 ```
 
-One deliberate gap worth knowing about: `User` (login/auth) and `Borrower` (the loan-domain
-profile) are **not linked** to each other. Registering a `BORROWER` user just proves you can log
-in; you separately create or look up a `Borrower` by ID to actually apply for a loan. The
-frontend's "enter your Borrower ID / create one" step is an honest reflection of this, not a
-workaround.
 
-## Getting started
-
-### Backend, via Docker Compose (recommended)
-
-```bash
-docker compose up --build
-```
-
-This runs Postgres + the Spring Boot app together, migrates the schema, and seeds one demo
-`LoanProduct` (see `V7__seed_demo_loan_product.sql`). The API is then at `http://localhost:8080`.
-
-### Backend, without Docker
-
-Requires a local Postgres matching the `DB_URL`/`DB_USERNAME`/`DB_PASSWORD` defaults in
-`application.properties` (or override them via environment variables), and a JDK matching
-`java.version` in `pom.xml`.
-
-```bash
-./mvnw spring-boot:run
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-cp .env.example .env   # VITE_API_BASE_URL should point at the backend above
-npm run dev
-```
-
-Opens at `http://localhost:5173` (the backend's default CORS-allowed origin).
-
-## Running the tests
-
-```bash
-./mvnw test
-```
-
-Covers unit tests, controller slice tests (`@WebMvcTest`), a couple of concurrency-focused
-tests that deliberately break and restore a guarantee to prove it holds (see
-`RepaymentConcurrencyTest`, `OutboxAtomicityTest`), and `FullLoanLifecycleIntegrationTest` - a
-real-HTTP, real-JWT, real-H2-database test of the entire application → approval →
-acknowledgement → repayment → closure lifecycle, plus a rejection branch.
 
 ## API overview
 
